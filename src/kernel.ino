@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "include/context.h"
 #include "include/scheduler.h"
 #include "include/task.h"
 
@@ -43,6 +44,34 @@ void t4(void) { digitalWrite(d4, digitalRead(A1)); }
 ISR(TIMER1_COMPA_vect) {  // timer1 interrupt
   Sched_Schedule();
   Sched_Dispatch();
+}
+
+// Verficar se é este o interrupt que queremos capturar?
+void TIMER0_COMPB_vect(void) __attribute__((signal, naked));
+void vPortYieldFromTick(void) __attribute__((naked));
+void vTaskIncrementTick(void) __attribute__((naked));
+void vTaskSwitchContext(void) __attribute__((naked));
+
+void vTaskIncrementTick(void) {}
+
+void vTaskSwitchContext(void) {}
+
+void vPortYieldFromTick(void) {
+  portSAVE_CONTEXT();
+
+  vTaskIncrementTick();
+  vTaskSwitchContext();
+
+  portRESTORE_CONTEXT();
+
+  asm volatile("ret");
+}
+
+/* Interrupt service routine for the OS tick. */
+void TIMER0_COMPB_vect(void) {
+  vPortYieldFromTick();
+
+  asm volatile("reti");
 }
 
 // the setup function runs once when you press reset or power the board
