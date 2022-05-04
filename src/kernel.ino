@@ -16,9 +16,7 @@ extern int cur_task;
  *     T2 - T = 200ms   -> Led d2 toggle
  *     T3 - T = 600ms   -> Led d3 toggle
  *     T4 - T = 100ms   -> Led d4 copied from button A1
-*/
-
-int Sched_AddT(void (*f)(void), int d, int p);
+ */
 
 void toggle(void) { digitalWrite(d4, !digitalRead(d4)); }
 
@@ -40,6 +38,13 @@ void t2(void) { digitalWrite(d2, !digitalRead(d2)); }
 void t3(void) { digitalWrite(d3, !digitalRead(d3)); }
 void t4(void) { digitalWrite(d4, digitalRead(A1)); }
 
+// -----------------------------------------------------------------------
+
+ISR(TIMER1_COMPA_vect) {  // timer1 interrupt
+  Sched_Schedule();
+  Sched_Dispatch();
+}
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
@@ -47,6 +52,7 @@ void setup() {
   pinMode(d3, OUTPUT);
   pinMode(d2, OUTPUT);
   pinMode(d1, OUTPUT);
+
   Sched_Init();
 
   Sched_AddT(t0, 1 /* delay */, 10 /* period */);
@@ -68,11 +74,6 @@ void setup() {
   Sched_AddT(toggle, 80 /* delay */, 0 /* period */);
 
   Sched_AddT(t1, 1 /* delay */, 1000 /* period */);
-}
-
-ISR(TIMER1_COMPA_vect) {  // timer1 interrupt
-  Sched_Schedule();
-  Sched_Dispatch();
 }
 
 // the loop function runs over and over again forever
