@@ -6,3 +6,4 @@
 2. Install Arduino extension
 3. Select Programmer -> **AVRISP mkII**
 4. Select Board -> **Arduino Uno**
+5. Select Serial Port -> **COM3** ??
