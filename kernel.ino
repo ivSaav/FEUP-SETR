@@ -1,6 +1,3 @@
-
-
-
 #define d1 13
 #define d2 12
 #define d3 11
