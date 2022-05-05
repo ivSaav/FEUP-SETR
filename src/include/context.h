@@ -1,7 +1,7 @@
 #define portRESTORE_CONTEXT()        \
-  "asm volatile ("                   \
-  "lds  r26, pxCurrentTCB      \n\t" \
-  "lds  r27, pxCurrentTCB + 1  \n\t" \
+asm volatile ( \
+  "lds  r26, cur_task      \n\t" \
+  "lds  r27, cur_task + 1  \n\t" \
   "ld   r28, x+                \n\t" \
   "out  __SP_L__, r28          \n\t" \
   "ld   r29, x+                \n\t" \
@@ -10,6 +10,7 @@
   "pop  r30                    \n\t" \
   "pop  r29                    \n\t" \
   "pop  r28                    \n\t" \
+  "pop  r27                    \n\t" \
   "pop  r26                    \n\t" \
   "pop  r25                    \n\t" \
   "pop  r24                    \n\t" \
@@ -39,10 +40,10 @@
   "pop  r0                     \n\t" \
   "out  __SREG__, r0           \n\t" \
   "pop  r0                     \n\t" \
-  ");"
+);
 
 #define portSAVE_CONTEXT()           \
-  "asm volatile ("                   \
+asm volatile (                       \
   "push  r0                    \n\t" \
   "in    r0, __SREG__          \n\t" \
   "cli                         \n\t" \
@@ -79,10 +80,10 @@
   "push  r29                   \n\t" \
   "push  r30                   \n\t" \
   "push  r31                   \n\t" \
-  "lds   r26, pxCurrentTCB     \n\t" \
-  "lds   r27, pxCurrentTCB + 1 \n\t" \
+  "lds   r26, cur_task      \n\t" \
+  "lds   r27, cur_task + 1 \n\t" \
   "in    r0, __SP_L__          \n\t" \
   "st    x+, r0                \n\t" \
   "in    r0, __SP_H__          \n\t" \
   "st    x+, r0                \n\t" \
-  ");"
+);

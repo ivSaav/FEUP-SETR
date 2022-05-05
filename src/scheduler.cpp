@@ -4,8 +4,8 @@
 
 #include "include/task.h"
 
-task_t Tasks[NT];
-int cur_task = NT;
+volatile task_t Tasks[NT];
+volatile int cur_task = 0;
 
 int Sched_Init(void) {
   for (int x = 0; x < NT; x++) Tasks[x].func = 0;
@@ -27,6 +27,7 @@ int Sched_Init(void) {
 int Sched_AddT(void (*f)(void), int d, int p) {
   for (int x = 0; x < NT; x++)
     if (!Tasks[x].func) {
+      Tasks[x].stackPointer = (Tasks[x].stack); // ????
       Tasks[x].period = p;
       Tasks[x].delay = d;
       Tasks[x].exec = 0;
