@@ -2,6 +2,6 @@
     "board": "arduino:avr:uno",
     "programmer": "arduino:avrispmkii",
     "port": "COM3",
-    "sketch": "src/kernel.ino",
+    "sketch": "kernel/kernel.ino",
     "output": "build"
 }
