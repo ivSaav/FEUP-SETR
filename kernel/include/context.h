@@ -1,3 +1,6 @@
+#ifndef CONTEXT_H
+#define CONTEXT_H
+
 #define portRESTORE_CONTEXT()            \
   asm volatile(                          \
       "lds  r26, cur_TCB      \n\t"      \
@@ -85,3 +88,5 @@
       "st    x+, r0                \n\t" \
       "in    r0, __SP_H__          \n\t" \
       "st    x+, r0                \n\t");
+
+#endif /* CONTEXT_H */
