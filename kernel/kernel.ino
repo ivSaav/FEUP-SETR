@@ -4,10 +4,10 @@
 #include "include/scheduler.h"
 #include "include/task.h"
 
-extern volatile task_t Tasks[NT];
+extern Task Tasks[NT];
 extern volatile int cur_task;
-extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
-                                             changed */
+extern volatile StackType_t* volatile cur_TCB; /*Change in assembly
+                                                  if name is changed */
 
 #define d1 13
 #define d2 12
@@ -31,7 +31,7 @@ void vPortYield(void) __attribute__((naked));
 void vPortYield(void) {
   portSAVE_CONTEXT();
 
-  Sched_Dispatch();
+  Sched_Dispatch(); /* vTaskSwitchContext in FreeRTOS */
 
   portRESTORE_CONTEXT();
 
@@ -64,7 +64,7 @@ void t4(void) {
 void idle(void) {
   while (1) {
     // Serial.println("Idle");
-    // digitalWrite(d1, !digitalRead(d1));
+    digitalWrite(d1, !digitalRead(d1));
   }
 }
 
@@ -91,6 +91,7 @@ void setup() {
   Sched_AddTask(t4, 1 /* delay */, 500 /* period */);
   Sched_AddTask(idle, 1 /* delay */, 1 /* period */);
 
+  // Serial.println(Tasks[0].period);
   Sched_Start();
 }
 
