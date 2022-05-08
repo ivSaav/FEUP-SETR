@@ -10,14 +10,21 @@ volatile int cur_task = 0;
 volatile task_t* volatile cur_TCB = &(Tasks[0]); /* Change in assembly
                                                      if name is changed */
 
+StackType_t globalStack[1500];
+int curStackIndex = 0;
+
 int Sched_Init(void) {
   for (int x = 0; x < NT; x++) Tasks[x].func = 0;
 }
 
-int Sched_AddTask(void (*f)(void), int d, int p) {
+int Sched_AddTask(void (*f)(void), int d, int p, int maxStackSize) {
   for (int x = 0; x < NT; x++)
     if (!Tasks[x].func) {
-      Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
+      // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
+      Tasks[x].bottomOfStack = &(globalStack[curStackIndex]);
+      Tasks[x].stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
+      curStackIndex += maxStackSize;
+
       Tasks[x].period = p;
       Tasks[x].delay = d;
       Tasks[x].exec = 0;

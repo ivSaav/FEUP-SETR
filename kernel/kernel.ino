@@ -54,6 +54,7 @@ void t3(void) {
 }
 
 void t4(void) {
+  int a, b, c, d, e, f;
   while (1) {
     digitalWrite(d4, !digitalRead(d4));
     Tasks[cur_task].exec = 0;
@@ -87,9 +88,9 @@ void setup() {
 
   Sched_Init();
 
-  Sched_AddTask(t3, 1 /* delay */, 1000 /* period */);
-  Sched_AddTask(t4, 1 /* delay */, 500 /* period */);
-  Sched_AddTask(idle, 1 /* delay */, 1 /* period */);
+  Sched_AddTask(t3, 1 /* delay */, 1000 /* period */, 50);
+  Sched_AddTask(t4, 1 /* delay */, 500 /* period */, 100);
+  Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 40);
 
   Sched_Start();
 }
