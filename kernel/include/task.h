@@ -1,13 +1,17 @@
 #ifndef TASK_H
 #define TASK_H
 
-#define STACK_SIZE 50
+#include "Arduino.h"
+
+#define MAX_STACK_SIZE 50
+
+typedef uint8_t StackType_t;
 
 typedef struct {
   /* Must be first element in struct */
-  volatile uint8_t* stackPointer;
+  volatile StackType_t* stackPointer;
 
-  uint8_t stack[STACK_SIZE];
+  StackType_t stack[MAX_STACK_SIZE];
 
   /* period in ticks */
   int period;
@@ -22,5 +26,7 @@ typedef struct {
   int exec;
 
 } task_t;
+
+void Task_StackInit(task_t* t);
 
 #endif /* TASK_H */

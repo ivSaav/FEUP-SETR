@@ -4,7 +4,7 @@
 #include "include/scheduler.h"
 #include "include/task.h"
 
-extern volatile task_t Tasks[NT];
+extern task_t Tasks[NT];
 extern volatile int cur_task;
 extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
                                              changed */
