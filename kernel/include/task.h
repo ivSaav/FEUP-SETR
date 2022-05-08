@@ -17,7 +17,9 @@ class Task {
  public:
   volatile StackType_t* stackPointer;
 
-  StackType_t stack[MAX_STACK_SIZE];
+  StackType_t* bottomOfStack;
+
+  // StackType_t stack[MAX_STACK_SIZE];
 
   /* period in ticks */
   int period;

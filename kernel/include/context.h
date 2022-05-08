@@ -3,11 +3,9 @@
 
 #define portRESTORE_CONTEXT()            \
   asm volatile(                          \
-      "lds  r26, cur_TCB      \n\t"      \
-      "lds  r27, cur_TCB + 1  \n\t"      \
-      "ld   r28, x+                \n\t" \
+      "lds   r28, cur_TCB                \n\t" \
       "out  __SP_L__, r28          \n\t" \
-      "ld   r29, x+                \n\t" \
+      "lds   r29, cur_TCB + 1                \n\t" \
       "out  __SP_H__, r29          \n\t" \
       "pop  r31                    \n\t" \
       "pop  r30                    \n\t" \
@@ -82,11 +80,9 @@
       "push  r29                   \n\t" \
       "push  r30                   \n\t" \
       "push  r31                   \n\t" \
-      "lds   r26, cur_TCB          \n\t" \
-      "lds   r27, cur_TCB + 1      \n\t" \
       "in    r0, __SP_L__          \n\t" \
-      "st    x+, r0                \n\t" \
+      "sts    cur_TCB, r0                \n\t" \
       "in    r0, __SP_H__          \n\t" \
-      "st    x+, r0                \n\t");
+      "sts    cur_TCB + 1, r0                \n\t");
 
 #endif /* CONTEXT_H */

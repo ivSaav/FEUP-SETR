@@ -1,7 +1,11 @@
 #include "include/task.h"
 
+extern StackType_t stacks[1500];
+extern int cur_stack_index;
+
 Task::Task() {
-  this->stackPointer = &(this->stack[MAX_STACK_SIZE - 1]);
+  this->bottomOfStack = 0;
+  this->stackPointer = 0;
   this->period = 0;
   this->delay = 0;
   this->exec = 0;
@@ -9,7 +13,10 @@ Task::Task() {
 }
 
 Task::Task(void (*f)(void), int d, int p) {
-  this->stackPointer = &(this->stack[MAX_STACK_SIZE - 1]);
+  // this->stackPointer = &(stacks[MAX_STACK_SIZE - 1]);
+    this->bottomOfStack = &(stacks[cur_stack_index]);
+  this->stackPointer = &(stacks[cur_stack_index + MAX_STACK_SIZE - 1]);
+  cur_stack_index += MAX_STACK_SIZE;
   this->period = p;
   this->delay = d;
   this->exec = 0;

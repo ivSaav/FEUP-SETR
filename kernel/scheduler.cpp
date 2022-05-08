@@ -10,6 +10,10 @@ volatile int cur_task = 0;
 volatile StackType_t* volatile cur_TCB =
     Tasks[0].stackPointer;  // Change in assembly if name is changed
 
+
+StackType_t stacks[1500] = {0};
+int cur_stack_index = 0;
+
 // /* Hardware constants for timer 1 on ATMega323. */
 // #define portCLEAR_COUNTER_ON_MATCH (0x08)
 // #define portPRESCALE_256 (0x04)
@@ -111,6 +115,7 @@ void Sched_Start(void) {
   interrupts();
 
   // prvSetupTimerInterrupt();
+  cur_TCB = Tasks[cur_task].stackPointer;
 
   /* Restore the context of the first task that is going to run. */
   portRESTORE_CONTEXT();
