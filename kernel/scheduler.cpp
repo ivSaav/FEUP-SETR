@@ -7,7 +7,7 @@
 
 task_t Tasks[NT];
 volatile int cur_task = 0;
-volatile task_t* volatile cur_TCB = &(Tasks[0]); /* Change in assembly
+volatile task_t *volatile cur_TCB = &(Tasks[0]); /* Change in assembly
                                                      if name is changed */
 
 StackType_t globalStack[1500];
@@ -17,7 +17,8 @@ int Sched_Init(void) {
   for (int x = 0; x < NT; x++) Tasks[x].func = 0;
 }
 
-int Sched_AddTask(void (*f)(void), int d, int p, int maxStackSize) {
+int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
+                  int maxStackSize, int isIdleTask) {
   for (int x = 0; x < NT; x++)
     if (!Tasks[x].func) {
       // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
@@ -26,9 +27,11 @@ int Sched_AddTask(void (*f)(void), int d, int p, int maxStackSize) {
       curStackIndex += maxStackSize;
 
       Tasks[x].period = p;
-      Tasks[x].delay = d;
+      Tasks[x].delay = delay;
+      Tasks[x].deadline = deadline;
       Tasks[x].exec = 0;
       Tasks[x].func = f;
+      Tasks[x].isIdleTask = isIdleTask;
       Task_StackInit(&Tasks[x]);
 
       return x;
@@ -51,8 +54,34 @@ void Sched_Schedule(void) {
   }
 }
 
+static int Task_cmp(const void *p1, const void *p2) {
+  const task_t *t1 = (const task_t *)p1;
+  const task_t *t2 = (const task_t *)p2;
+
+  // Non set tasks always go
+  if (t1->func == 0) return 1;
+  if (t2->func == 0) return -1;
+
+  if (t1->exec == t2->exec) {
+    if (t1->isIdleTask) return 1;
+    if (t2->isIdleTask) return -1;
+    return t1->deadline - t2->deadline;
+  }
+
+  return t2->exec - t1->exec;
+}
+
 /* Called every tick */
 void Sched_Dispatch(void) {
+  // qsort(Tasks, NT, sizeof(task_t), Task_cmp);
+  // cur_task = 0;
+  // cur_TCB = &(Tasks[cur_task]);
+
+  // for (int i = 0; i < NT; i++) {
+  //   Serial.println(Tasks[i].period);
+  // }
+  // Serial.println(Tasks[0].period);
+
   for (int x = 0; x < NT; x++) {
     if ((Tasks[x].func) && (Tasks[x].exec)) {
       cur_task = x;
@@ -73,8 +102,8 @@ void Sched_Start(void) {
   TCNT1 = 0;
 
   // OCR1A = 6250; // compare match register 16MHz/256/10Hz
-  // OCR1A = 31250; // compare match register 16MHz/256/2Hz
-  OCR1A = 31;               // compare match register 16MHz/256/2kHz
+  OCR1A = 31250;  // compare match register 16MHz/256/2Hz
+  // OCR1A = 31;               // compare match register 16MHz/256/2kHz
   TCCR1B |= (1 << WGM12);   // CTC mode
   TCCR1B |= (1 << CS12);    // 256 prescaler
   TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt

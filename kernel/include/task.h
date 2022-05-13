@@ -21,11 +21,16 @@ typedef struct {
   /* ticks until next activation */
   int delay;
 
+  /* deadline in ticks */
+  int deadline;
+
   /* function pointer */
   void (*func)(void);
 
   /* activation counter */
   int exec;
+
+  int isIdleTask;
 
 } task_t;
 

@@ -50,6 +50,7 @@ ISR(TIMER1_COMPA_vect, ISR_NAKED) {
 void t2(void) {
   while (1) {
     digitalWrite(d2, !digitalRead(d2));
+    Serial.println(F("Im task 2"));
     TaskYield();
   }
 }
@@ -57,6 +58,7 @@ void t2(void) {
 void t3(void) {
   while (1) {
     digitalWrite(d3, !digitalRead(d3));
+    Serial.println(F("Im task 3"));
     TaskYield();
   }
 }
@@ -65,6 +67,7 @@ void t4(void) {
   int a, b, c, d, e, f;
   while (1) {
     digitalWrite(d4, !digitalRead(d4));
+    Serial.println(F("Im task 4"));
     TaskYield();
   }
 }
@@ -95,10 +98,10 @@ void setup() {
 
   Sched_Init();
 
-  Sched_AddTask(t3, 1 /* delay */, 1000 /* period */, 50);
-  Sched_AddTask(t4, 1 /* delay */, 500 /* period */, 100);
-  Sched_AddTask(t2, 1 /* delay */, 750 /* period */, 100);
-  Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 40);
+  Sched_AddTask(t3, 1 /* delay */, 2 /* period */, 10, 100, 0);
+  Sched_AddTask(t4, 1 /* delay */, 3 /* period */, 5, 100, 0);
+  // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
+  Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 40, 1);
 
   Sched_Start();
 }
