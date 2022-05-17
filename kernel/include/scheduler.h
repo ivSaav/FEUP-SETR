@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-#define NT 20
-#define GLOBAL_STACK_SIZE 1500
+#define NT 3
+#define GLOBAL_STACK_SIZE 1000
 
 int Sched_Init(void);
 

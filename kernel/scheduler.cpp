@@ -10,7 +10,7 @@ volatile int cur_task = 0;
 volatile task_t *volatile cur_TCB = &(Tasks[0]); /* Change in assembly
                                                      if name is changed */
 
-StackType_t globalStack[1500];
+StackType_t globalStack[GLOBAL_STACK_SIZE];
 int curStackIndex = 0;
 
 int Sched_Init(void) {
@@ -58,9 +58,11 @@ static int Task_cmp(const void *p1, const void *p2) {
   const task_t *t1 = (const task_t *)p1;
   const task_t *t2 = (const task_t *)p2;
 
-  // Non set tasks always go
-  if (t1->func == 0) return 1;
-  if (t2->func == 0) return -1;
+  // Serial.println(t1->exec);
+
+  // Non set tasks always go last
+  if (!t1->func) return 1;
+  if (!t2->func) return -1;
 
   if (t1->exec == t2->exec) {
     if (t1->isIdleTask) return 1;
@@ -71,27 +73,46 @@ static int Task_cmp(const void *p1, const void *p2) {
   return t2->exec - t1->exec;
 }
 
+// static void sortTasks() {
+//   for (int i = 0; i < NT - 1; i++) {
+//     for (int j = 0; j < NT - i - 1; j++) {
+//       if (Task_cmp(&Tasks[j], &Tasks[j + 1]) > 0) {
+//         // if (Tasks[j] > Tasks[j + 1]) {
+//         task_t temp = Tasks[j];
+//         Tasks[j] = Tasks[j + 1];
+//         Tasks[j + 1] = temp;
+//       }
+//     }
+//   }
+// }
+
 /* Called every tick */
 void Sched_Dispatch(void) {
-  // qsort(Tasks, NT, sizeof(task_t), Task_cmp);
+  // sortTasks();
+  qsort(Tasks, NT, sizeof(task_t), Task_cmp);
+  // // Serial.println(F("Task Top of List"));
+  // // Serial.println(Tasks[0].exec);
+  // // Serial.println(Tasks[0].isIdleTask);
+  // // Serial.println(Tasks[1].delay);
+
   // cur_task = 0;
   // cur_TCB = &(Tasks[cur_task]);
 
+  // Serial.println("A");
   // for (int i = 0; i < NT; i++) {
   //   Serial.println(Tasks[i].period);
   // }
-  // Serial.println(Tasks[0].period);
 
-  for (int x = 0; x < NT; x++) {
-    if ((Tasks[x].func) && (Tasks[x].exec)) {
-      cur_task = x;
-      cur_TCB = &(Tasks[cur_task]);  // Change in assembly if name is changed
+  // for (int x = 0; x < NT; x++) {
+  //   if ((Tasks[x].func) && (Tasks[x].exec)) {
+  //     cur_task = x;
+  //     cur_TCB = &(Tasks[cur_task]);  // Change in assembly if name is changed
 
-      /* Delete task if one-shot */
-      if (!Tasks[x].period) Tasks[x].func = 0;
-      return;
-    }
-  }
+  //     /* Delete task if one-shot */
+  //     if (!Tasks[x].period) Tasks[x].func = 0;
+  //     return;
+  //   }
+  // }
 }
 
 void Sched_Start(void) {

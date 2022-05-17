@@ -31,6 +31,9 @@ void TaskYield(void) __attribute__((naked));
 void TaskYield(void) {
   portSAVE_CONTEXT();
 
+  // Serial.println(F("Task Yielded"));
+  // Serial.println(Tasks[cur_task].deadline);
+
   Tasks[cur_task].exec = 0;
 
   Sched_Dispatch();
@@ -50,7 +53,7 @@ ISR(TIMER1_COMPA_vect, ISR_NAKED) {
 void t2(void) {
   while (1) {
     digitalWrite(d2, !digitalRead(d2));
-    Serial.println(F("Im task 2"));
+    // Serial.println(F("Im task 2"));
     TaskYield();
   }
 }
@@ -58,7 +61,7 @@ void t2(void) {
 void t3(void) {
   while (1) {
     digitalWrite(d3, !digitalRead(d3));
-    Serial.println(F("Im task 3"));
+    // Serial.println(F("Im task 3"));
     TaskYield();
   }
 }
@@ -67,24 +70,29 @@ void t4(void) {
   int a, b, c, d, e, f;
   while (1) {
     digitalWrite(d4, !digitalRead(d4));
-    Serial.println(F("Im task 4"));
+    // Serial.println(F("Im task 4"));
     TaskYield();
   }
 }
 
 void idle(void) {
   while (1) {
-    // Serial.println("Idle");
+    // Serial.println(F("Idle"));
     // digitalWrite(d1, !digitalRead(d1));
   }
 }
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  // Serial.begin(115200);
-  // while (!Serial) {
-  //   ;
-  // }
+
+
+  Serial.begin(115200);
+  while (!Serial) {
+    ;
+  }
+
+
+  Serial.println((uint16_t)&setup);
 
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(d4, OUTPUT);
@@ -98,8 +106,8 @@ void setup() {
 
   Sched_Init();
 
-  Sched_AddTask(t3, 1 /* delay */, 2 /* period */, 10, 100, 0);
-  Sched_AddTask(t4, 1 /* delay */, 3 /* period */, 5, 100, 0);
+  Sched_AddTask(t3, 1 /* delay */, 5 /* period */, 3, 100, 0);
+  Sched_AddTask(t4, 1 /* delay */, 10 /* period */, 6, 100, 0);
   // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
   Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 40, 1);
 
