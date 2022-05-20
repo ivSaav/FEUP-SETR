@@ -20,7 +20,7 @@ void vPortYieldFromTick(void) {
   portSAVE_CONTEXT();
 
   if (Sched_Schedule()) { /* vTaskIncrementTick in FreeRTOS */
-    Sched_Dispatch();          /* vTaskSwitchContext in FreeRTOS */
+    Sched_Dispatch();     /* vTaskSwitchContext in FreeRTOS */
   };
 
   portRESTORE_CONTEXT();
