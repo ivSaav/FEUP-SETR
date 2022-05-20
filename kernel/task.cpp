@@ -68,9 +68,9 @@ void Task_StackInit(task_t* t) {
   t->stackPointer--;
   *t->stackPointer = (StackType_t)0x23; /* R23 */
   t->stackPointer--;
-  *t->stackPointer = (StackType_t)0x24; /* R26 X */
+  *t->stackPointer = (StackType_t)0x24; /* R24 */
   t->stackPointer--;
-  *t->stackPointer = (StackType_t)0x25; /* R26 X */
+  *t->stackPointer = (StackType_t)0x25; /* R25 */
   t->stackPointer--;
   *t->stackPointer = (StackType_t)0x26; /* R26 X */
   t->stackPointer--;

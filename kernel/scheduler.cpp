@@ -14,7 +14,19 @@ StackType_t globalStack[GLOBAL_STACK_SIZE];
 int curStackIndex = 0;
 
 int Sched_Init(void) {
-  for (int x = 0; x < NT; x++) Tasks[x].func = 0;
+  for (int x = 0; x < NT; x++) {
+    task_t t;
+    t.bottomOfStack = 0;
+    t.stackPointer = 0;
+    t.period = 0;
+    t.delay = 0;
+    t.deadline = 0;
+    t.exec = 0;
+    t.func = 0;
+    t.isIdleTask = 0;
+
+    Tasks[x] = t;
+  }
 }
 
 int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
@@ -40,7 +52,8 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
 }
 
 /* Called every tick */
-void Sched_Schedule(void) {
+int Sched_Schedule(void) {
+  int switchContext = 0;
   for (int x = 0; x < NT; x++) {
     if (Tasks[x].func) {
       if (Tasks[x].delay) {
@@ -49,16 +62,17 @@ void Sched_Schedule(void) {
         /* Schedule Task */
         Tasks[x].exec = 1;
         Tasks[x].delay = Tasks[x].period - 1;
+        switchContext = 1;
       }
     }
   }
+
+  return switchContext;
 }
 
 static int Task_cmp(const void *p1, const void *p2) {
   const task_t *t1 = (const task_t *)p1;
   const task_t *t2 = (const task_t *)p2;
-
-  // Serial.println(t1->exec);
 
   // Non set tasks always go last
   if (!t1->func) return 1;
@@ -88,31 +102,11 @@ static int Task_cmp(const void *p1, const void *p2) {
 
 /* Called every tick */
 void Sched_Dispatch(void) {
-  // sortTasks();
+
   qsort(Tasks, NT, sizeof(task_t), Task_cmp);
-  // // Serial.println(F("Task Top of List"));
-  // // Serial.println(Tasks[0].exec);
-  // // Serial.println(Tasks[0].isIdleTask);
-  // // Serial.println(Tasks[1].delay);
 
-  // cur_task = 0;
-  // cur_TCB = &(Tasks[cur_task]);
-
-  // Serial.println("A");
-  // for (int i = 0; i < NT; i++) {
-  //   Serial.println(Tasks[i].period);
-  // }
-
-  // for (int x = 0; x < NT; x++) {
-  //   if ((Tasks[x].func) && (Tasks[x].exec)) {
-  //     cur_task = x;
-  //     cur_TCB = &(Tasks[cur_task]);  // Change in assembly if name is changed
-
-  //     /* Delete task if one-shot */
-  //     if (!Tasks[x].period) Tasks[x].func = 0;
-  //     return;
-  //   }
-  // }
+  cur_task = 0;
+  cur_TCB = &(Tasks[cur_task]);
 }
 
 void Sched_Start(void) {

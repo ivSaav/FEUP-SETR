@@ -19,8 +19,9 @@ void vPortYieldFromTick(void) __attribute__((naked));
 void vPortYieldFromTick(void) {
   portSAVE_CONTEXT();
 
-  Sched_Schedule(); /* vTaskIncrementTick in FreeRTOS */
-  Sched_Dispatch(); /* vTaskSwitchContext in FreeRTOS */
+  if (Sched_Schedule()) { /* vTaskIncrementTick in FreeRTOS */
+    Sched_Dispatch();          /* vTaskSwitchContext in FreeRTOS */
+  };
 
   portRESTORE_CONTEXT();
   asm volatile("ret");
@@ -84,13 +85,10 @@ void idle(void) {
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-
-
   Serial.begin(115200);
   while (!Serial) {
     ;
   }
-
 
   Serial.println((uint16_t)&setup);
 
@@ -109,7 +107,7 @@ void setup() {
   Sched_AddTask(t3, 1 /* delay */, 5 /* period */, 3, 100, 0);
   Sched_AddTask(t4, 1 /* delay */, 10 /* period */, 6, 100, 0);
   // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
-  Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 40, 1);
+  Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 100, 1);
 
   Sched_Start();
 }
