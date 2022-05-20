@@ -32,6 +32,9 @@ typedef struct {
 
   int isIdleTask;
 
+  /* Used for Priority Inheritance */
+  int inheritedDeadline;
+
 } task_t;
 
 void Task_StackInit(task_t* t);

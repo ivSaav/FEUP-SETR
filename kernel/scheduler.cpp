@@ -14,19 +14,7 @@ StackType_t globalStack[GLOBAL_STACK_SIZE];
 int curStackIndex = 0;
 
 int Sched_Init(void) {
-  for (int x = 0; x < NT; x++) {
-    task_t t;
-    t.bottomOfStack = 0;
-    t.stackPointer = 0;
-    t.period = 0;
-    t.delay = 0;
-    t.deadline = 0;
-    t.exec = 0;
-    t.func = 0;
-    t.isIdleTask = 0;
-
-    Tasks[x] = t;
-  }
+  for (int x = 0; x < NT; x++) Tasks[x].func = 0;
 }
 
 int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
@@ -44,6 +32,7 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
       Tasks[x].exec = 0;
       Tasks[x].func = f;
       Tasks[x].isIdleTask = isIdleTask;
+      Tasks[x].inheritedDeadline = 0;
       Task_StackInit(&Tasks[x]);
 
       return x;
@@ -102,7 +91,6 @@ static int Task_cmp(const void *p1, const void *p2) {
 
 /* Called every tick */
 void Sched_Dispatch(void) {
-
   qsort(Tasks, NT, sizeof(task_t), Task_cmp);
 
   cur_task = 0;
