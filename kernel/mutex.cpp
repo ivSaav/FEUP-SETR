@@ -6,6 +6,9 @@
 mutex_t Mutexes[NM];
 extern task_t Tasks[NT];
 
+extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
+                                             changed */
+
 /* Mutex yield */
 void MutexYield(void) __attribute__((naked));
 void MutexYield(void) {
@@ -25,7 +28,7 @@ void Mut_init() {
   for (int i = 0; i < NM; i++) Mutexes[i].isLocked = 0;
 }
 
-void lock(mutex_t* m, volatile task_t* locker) {
+void lock(mutex_t* m) {
   ENTER_CRITICAL();
 
   int locked = 0;
@@ -44,13 +47,13 @@ void lock(mutex_t* m, volatile task_t* locker) {
         }
       }
 
-      holder->inheritedDeadline = locker->inheritedDeadline;
-      locker->blocked = 1;
+      holder->inheritedDeadline = cur_TCB->inheritedDeadline;
+      cur_TCB->blocked = 1;
 
     } else {
       m->isLocked = 1;
-      m->currentHolderDeadline = locker->deadline;
-      m->holderId = locker->id;
+      m->currentHolderDeadline = cur_TCB->deadline;
+      m->holderId = cur_TCB->id;
       locked = 1;
       Serial.println(F("locked"));
     }
@@ -59,7 +62,7 @@ void lock(mutex_t* m, volatile task_t* locker) {
   EXIT_CRITICAL();
 }
 
-void unlock(mutex_t* m, volatile task_t* unlocker) {
+void unlock(mutex_t* m) {
   ENTER_CRITICAL();
 
   if (m->isLocked) {
@@ -76,8 +79,9 @@ void unlock(mutex_t* m, volatile task_t* unlocker) {
       }
     }
 
-    unlocker->inheritedDeadline = unlocker->deadline;
+    cur_TCB->inheritedDeadline = cur_TCB->deadline;
   } else {
+    /* Shouldn't happen */
   }
 
   Serial.println(F("Unlocked"));
