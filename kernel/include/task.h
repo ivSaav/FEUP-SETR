@@ -35,6 +35,11 @@ typedef struct {
   /* Used for Priority Inheritance */
   int inheritedDeadline;
 
+  /* Used for task identification */
+  int id;
+
+  int blocked;
+
 } task_t;
 
 void Task_StackInit(task_t* t);

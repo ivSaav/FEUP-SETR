@@ -26,13 +26,14 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
       Tasks[x].stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
       curStackIndex += maxStackSize;
 
+      Tasks[x].id = x;
       Tasks[x].period = p;
       Tasks[x].delay = delay;
       Tasks[x].deadline = deadline;
       Tasks[x].exec = 0;
       Tasks[x].func = f;
       Tasks[x].isIdleTask = isIdleTask;
-      Tasks[x].inheritedDeadline = 0;
+      Tasks[x].inheritedDeadline = deadline;
       Task_StackInit(&Tasks[x]);
 
       return x;
@@ -70,7 +71,12 @@ static int Task_cmp(const void *p1, const void *p2) {
   if (t1->exec == t2->exec) {
     if (t1->isIdleTask) return 1;
     if (t2->isIdleTask) return -1;
-    return t1->deadline - t2->deadline;
+    // return t1->deadline - t2->deadline;
+
+    if (t1->inheritedDeadline == t2->inheritedDeadline) {
+      return t1->blocked - t2->blocked;
+    }
+    return t1->inheritedDeadline - t2->inheritedDeadline;
   }
 
   return t2->exec - t1->exec;
@@ -95,6 +101,7 @@ void Sched_Dispatch(void) {
 
   cur_task = 0;
   cur_TCB = &(Tasks[cur_task]);
+  cur_TCB->blocked = 0;
 }
 
 void Sched_Start(void) {

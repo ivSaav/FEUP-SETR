@@ -5,12 +5,12 @@
 
 #define NM 5
 
-#define ENTER_CRITICAL()                                \
+#define ENTER_CRITICAL()                                    \
   asm volatile("in		__tmp_reg__, __SREG__" ::); \
   asm volatile("cli" ::);                                   \
   asm volatile("push	__tmp_reg__" ::);
 
-#define EXIT_CRITICAL()                       \
+#define EXIT_CRITICAL()                           \
   asm volatile("pop		__tmp_reg__" ::); \
   asm volatile("out		__SREG__, __tmp_reg__" ::);
 
@@ -18,14 +18,16 @@ typedef struct {
   /* Deadline of the task currently holding the mutex */
   int currentHolderDeadline;
 
-  int isLocked = 0;
+  int isLocked;
+
+  int holderId;
 
 } mutex_t;
 
 void Mut_init();
 
-void lock(mutex_t* m, task_t* locker);
+void lock(mutex_t* m, volatile task_t* locker);
 
-void unlock(mutex_t* m);
+void unlock(mutex_t* m, volatile task_t* unlocker);
 
 #endif /* MUTEX_H */
