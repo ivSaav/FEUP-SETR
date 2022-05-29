@@ -26,8 +26,8 @@ typedef struct {
 
 void Mut_init();
 
-void lock(mutex_t* m, volatile task_t* locker);
+void lock(mutex_t* m);
 
-void unlock(mutex_t* m, volatile task_t* unlocker);
+void unlock(mutex_t* m);
 
 #endif /* MUTEX_H */

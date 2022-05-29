@@ -5,36 +5,43 @@
 #include "include/context.h"
 #include "include/task.h"
 
-task_t Tasks[NT];
+task_t *Tasks[NT];
+task_t T_Objs[NT];
 volatile int cur_task = 0;
-volatile task_t *volatile cur_TCB = &(Tasks[0]); /* Change in assembly
+volatile task_t *volatile cur_TCB = Tasks[0]; /* Change in assembly
                                                      if name is changed */
 
 StackType_t globalStack[GLOBAL_STACK_SIZE];
 int curStackIndex = 0;
 
 int Sched_Init(void) {
-  for (int x = 0; x < NT; x++) Tasks[x].func = 0;
+  Serial.println("Before init");
+  for (int x = 0; x < NT; x++) {
+    T_Objs[x].func = 0;
+  }
 }
 
 int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
                   int maxStackSize, int isIdleTask) {
   for (int x = 0; x < NT; x++)
-    if (!Tasks[x].func) {
+    
+    if (!T_Objs[x].func) {
       // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
-      Tasks[x].bottomOfStack = &(globalStack[curStackIndex]);
-      Tasks[x].stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
+      T_Objs[x].bottomOfStack = &(globalStack[curStackIndex]);
+      T_Objs[x].stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
       curStackIndex += maxStackSize;
 
-      Tasks[x].id = x;
-      Tasks[x].period = p;
-      Tasks[x].delay = delay;
-      Tasks[x].deadline = deadline;
-      Tasks[x].exec = 0;
-      Tasks[x].func = f;
-      Tasks[x].isIdleTask = isIdleTask;
-      Tasks[x].inheritedDeadline = deadline;
-      Task_StackInit(&Tasks[x]);
+      T_Objs[x].id = x;
+      T_Objs[x].period = p;
+      T_Objs[x].delay = delay;
+      T_Objs[x].deadline = deadline;
+      T_Objs[x].exec = 0;
+      T_Objs[x].func = f;
+      T_Objs[x].isIdleTask = isIdleTask;
+      T_Objs[x].inheritedDeadline = deadline;
+
+      Tasks[x] = &T_Objs[x];
+      Task_StackInit(Tasks[x]);
 
       return x;
     }
@@ -45,13 +52,13 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
 int Sched_Schedule(void) {
   int switchContext = 0;
   for (int x = 0; x < NT; x++) {
-    if (Tasks[x].func) {
-      if (Tasks[x].delay) {
-        Tasks[x].delay--;
+    if (Tasks[x]->func) {
+      if (Tasks[x]->delay) {
+        Tasks[x]->delay--;
       } else {
         /* Schedule Task */
-        Tasks[x].exec = 1;
-        Tasks[x].delay = Tasks[x].period - 1;
+        Tasks[x]->exec = 1;
+        Tasks[x]->delay = Tasks[x]->period - 1;
         switchContext = 1;
       }
     }
@@ -61,8 +68,8 @@ int Sched_Schedule(void) {
 }
 
 static int Task_cmp(const void *p1, const void *p2) {
-  const task_t *t1 = (const task_t *)p1;
-  const task_t *t2 = (const task_t *)p2;
+  const task_t *t1 = *((const task_t **) p1);
+  const task_t *t2 = *((const task_t **) p2);
 
   // Non set tasks always go last
   if (!t1->func) return 1;
@@ -97,10 +104,13 @@ static int Task_cmp(const void *p1, const void *p2) {
 
 /* Called every tick */
 void Sched_Dispatch(void) {
-  qsort(Tasks, NT, sizeof(task_t), Task_cmp);
+  Serial.println("BEFORE SCHED");
+  qsort(Tasks, NT, sizeof(task_t*), Task_cmp);
+
+  Serial.println("AFTER SCHED");
 
   cur_task = 0;
-  cur_TCB = &(Tasks[cur_task]);
+  cur_TCB = Tasks[cur_task];
   cur_TCB->blocked = 0;
 }
 

@@ -4,7 +4,7 @@
 #include "include/scheduler.h"
 
 mutex_t Mutexes[NM];
-extern task_t Tasks[NT];
+extern task_t *Tasks[NT];
 
 extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
                                              changed */
@@ -41,8 +41,8 @@ void lock(mutex_t* m) {
 
       task_t* holder;
       for (int i = 0; i < NT; i++) {
-        if (Tasks[i].id == m->holderId) {
-          holder = &Tasks[i];
+        if (Tasks[i]->id == m->holderId) {
+          holder = Tasks[i];
           break;
         }
       }
@@ -55,7 +55,6 @@ void lock(mutex_t* m) {
       m->currentHolderDeadline = cur_TCB->deadline;
       m->holderId = cur_TCB->id;
       locked = 1;
-      Serial.println(F("locked"));
     }
     MutexYield();
   }
@@ -73,8 +72,8 @@ void unlock(mutex_t* m) {
 
     task_t* holder;
     for (int i = 0; i < NT; i++) {
-      if (Tasks[i].id == m->holderId) {
-        holder = &Tasks[i];
+      if (Tasks[i]->id == m->holderId) {
+        holder = Tasks[i];
         break;
       }
     }
@@ -84,7 +83,6 @@ void unlock(mutex_t* m) {
     /* Shouldn't happen */
   }
 
-  Serial.println(F("Unlocked"));
   EXIT_CRITICAL();
   MutexYield();
 }

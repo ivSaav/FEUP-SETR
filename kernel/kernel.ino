@@ -5,7 +5,7 @@
 #include "include/scheduler.h"
 #include "include/task.h"
 
-extern task_t Tasks[NT];
+extern task_t *Tasks[NT];
 extern volatile int cur_task;
 extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
                                              changed */
@@ -42,7 +42,7 @@ void TaskYield(void) {
   // Serial.println(F("Task Yielded"));
   // Serial.println(Tasks[cur_task].deadline);
 
-  Tasks[cur_task].exec = 0;
+  Tasks[cur_task]->exec = 0;
 
   Sched_Dispatch();
 
@@ -60,11 +60,11 @@ ISR(TIMER1_COMPA_vect, ISR_NAKED) {
 
 void longTask(void) {
   while (1) {
-    lock(&Mutexes[0], cur_TCB);
+    lock(&Mutexes[0]);
     digitalWrite(d2, !digitalRead(d2));
     delay(2000);
     digitalWrite(d2, !digitalRead(d2));
-    unlock(&Mutexes[0], cur_TCB);
+    unlock(&Mutexes[0]);
 
     TaskYield();
   }
@@ -73,9 +73,9 @@ void longTask(void) {
 void button(void) {
   while (1) {
     if (!digitalRead(A1)) {
-      lock(&Mutexes[0], cur_TCB);
+      lock(&Mutexes[0]);
       digitalWrite(d1, !digitalRead(d1));
-      unlock(&Mutexes[0], cur_TCB);
+      unlock(&Mutexes[0]);
     }
 
     TaskYield();
@@ -84,9 +84,9 @@ void button(void) {
 
 void shortTask(void) {
   while (1) {
-    lock(&Mutexes[0], cur_TCB);
+    lock(&Mutexes[0]);
     digitalWrite(d1, !digitalRead(d1));
-    unlock(&Mutexes[0], cur_TCB);
+    unlock(&Mutexes[0]);
 
     TaskYield();
   }
@@ -145,13 +145,17 @@ void setup() {
 
   Mut_init();
 
+  // Serial.println("Before Init");
+
   Sched_Init();
 
   // Sched_AddTask(t3, 1 /* delay */, 5 /* period */, 3, 100, 0);
   // Sched_AddTask(t4, 1 /* delay */, 10 /* period */, 6, 100, 0);
   // Sched_AddTask(shortTask, 1, 2, 1, 100, 0);
+  // Serial.println("Before Create");
   Sched_AddTask(button, 1, 1, 1, 100, 0);
   Sched_AddTask(longTask, 8, 10, 5, 100, 0);
+  Serial.println("After Create");
   // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
   Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 100, 1);
 
