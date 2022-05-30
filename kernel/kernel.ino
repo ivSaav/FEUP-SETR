@@ -60,11 +60,11 @@ ISR(TIMER1_COMPA_vect, ISR_NAKED) {
 
 void longTask(void) {
   while (1) {
-    lock(&Mutexes[0], cur_TCB);
+    lock(&Mutexes[0]);
     digitalWrite(d2, !digitalRead(d2));
     delay(2000);
     digitalWrite(d2, !digitalRead(d2));
-    unlock(&Mutexes[0], cur_TCB);
+    unlock(&Mutexes[0]);
 
     TaskYield();
   }
@@ -73,9 +73,9 @@ void longTask(void) {
 void button(void) {
   while (1) {
     if (!digitalRead(A1)) {
-      lock(&Mutexes[0], cur_TCB);
+      lock(&Mutexes[0]);
       digitalWrite(d1, !digitalRead(d1));
-      unlock(&Mutexes[0], cur_TCB);
+      unlock(&Mutexes[0]);
     }
 
     TaskYield();
@@ -84,9 +84,9 @@ void button(void) {
 
 void shortTask(void) {
   while (1) {
-    lock(&Mutexes[0], cur_TCB);
+    lock(&Mutexes[0]);
     digitalWrite(d1, !digitalRead(d1));
-    unlock(&Mutexes[0], cur_TCB);
+    unlock(&Mutexes[0]);
 
     TaskYield();
   }
