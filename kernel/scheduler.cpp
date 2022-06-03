@@ -15,36 +15,36 @@ StackType_t globalStack[GLOBAL_STACK_SIZE];
 int curStackIndex = 0;
 
 int Sched_Init(void) {
-  Serial.println("Before init");
   for (int x = 0; x < NT; x++) {
     T_Objs[x].func = 0;
+    Tasks[x] = &(T_Objs[x]);
   }
 }
 
 int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
                   int maxStackSize, int isIdleTask) {
-  for (int x = 0; x < NT; x++)
-    
-    if (!T_Objs[x].func) {
+  for (int x = 0; x < NT; x++) {
+
+    if (!Tasks[x]->func) {
+
+      Serial.print("J");
       // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
-      T_Objs[x].bottomOfStack = &(globalStack[curStackIndex]);
-      T_Objs[x].stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
+      Tasks[x]->bottomOfStack = &(globalStack[curStackIndex]);
+      Tasks[x]->stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
       curStackIndex += maxStackSize;
 
-      T_Objs[x].id = x;
-      T_Objs[x].period = p;
-      T_Objs[x].delay = delay;
-      T_Objs[x].deadline = deadline;
-      T_Objs[x].exec = 0;
-      T_Objs[x].func = f;
-      T_Objs[x].isIdleTask = isIdleTask;
-      T_Objs[x].inheritedDeadline = deadline;
-
-      Tasks[x] = &T_Objs[x];
+      Tasks[x]->id = x;
+      Tasks[x]->period = p;
+      Tasks[x]->delay = delay;
+      Tasks[x]->deadline = deadline;
+      Tasks[x]->exec = 0;
+      Tasks[x]->func = f;
+      Tasks[x]->isIdleTask = isIdleTask;
+      Tasks[x]->inheritedDeadline = deadline;
       Task_StackInit(Tasks[x]);
-
       return x;
     }
+  }
   return -1;
 }
 

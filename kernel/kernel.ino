@@ -145,7 +145,6 @@ void setup() {
 
   Mut_init();
 
-  // Serial.println("Before Init");
 
   Sched_Init();
 
@@ -155,7 +154,7 @@ void setup() {
   // Serial.println("Before Create");
   Sched_AddTask(button, 1, 1, 1, 100, 0);
   Sched_AddTask(longTask, 8, 10, 5, 100, 0);
-  Serial.println("After Create");
+  Serial.println("H");
   // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
   Sched_AddTask(idle, 1 /* delay */, 1 /* period */, 1, 100, 1);
 
