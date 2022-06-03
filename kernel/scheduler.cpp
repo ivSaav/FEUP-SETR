@@ -130,7 +130,7 @@ void Sched_Start(void) {
   interrupts();
 
   // prvSetupTimerInterrupt();
-
+  cur_TCB = Tasks[0];
   /* Restore the context of the first task that is going to run. */
   portRESTORE_CONTEXT();
 
