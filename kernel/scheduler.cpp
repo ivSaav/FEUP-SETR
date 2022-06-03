@@ -27,7 +27,6 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
 
     if (!Tasks[x]->func) {
 
-      Serial.print("J");
       // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
       Tasks[x]->bottomOfStack = &(globalStack[curStackIndex]);
       Tasks[x]->stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
@@ -104,11 +103,7 @@ static int Task_cmp(const void *p1, const void *p2) {
 
 /* Called every tick */
 void Sched_Dispatch(void) {
-  Serial.println("BEFORE SCHED");
   qsort(Tasks, NT, sizeof(task_t*), Task_cmp);
-
-  Serial.println("AFTER SCHED");
-
   cur_task = 0;
   cur_TCB = Tasks[cur_task];
   cur_TCB->blocked = 0;

@@ -36,24 +36,13 @@ void lock(mutex_t* m) {
     if (m->isLocked) {
       /* Task requesting lock will be blocked and inherit the priority of the
        * current holder */
-
-      // Yield from task?
-
-      task_t* holder;
-      for (int i = 0; i < NT; i++) {
-        if (Tasks[i]->id == m->holderId) {
-          holder = Tasks[i];
-          break;
-        }
-      }
-
-      holder->inheritedDeadline = cur_TCB->inheritedDeadline;
+      m->holder->inheritedDeadline = cur_TCB->inheritedDeadline;
       cur_TCB->blocked = 1;
 
     } else {
       m->isLocked = 1;
       m->currentHolderDeadline = cur_TCB->deadline;
-      m->holderId = cur_TCB->id;
+      m->holder = cur_TCB;
       locked = 1;
     }
     MutexYield();
@@ -68,16 +57,8 @@ void unlock(mutex_t* m) {
     /* Should not happen */
     m->isLocked = 0;
     m->currentHolderDeadline = 0;
-    m->holderId = -1;
 
-    task_t* holder;
-    for (int i = 0; i < NT; i++) {
-      if (Tasks[i]->id == m->holderId) {
-        holder = Tasks[i];
-        break;
-      }
-    }
-
+    m->holder = 0;
     cur_TCB->inheritedDeadline = cur_TCB->deadline;
   } else {
     /* Shouldn't happen */

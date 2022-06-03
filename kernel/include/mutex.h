@@ -20,7 +20,7 @@ typedef struct {
 
   int isLocked;
 
-  int holderId;
+  volatile task_t *holder;
 
 } mutex_t;
 
