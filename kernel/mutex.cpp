@@ -42,7 +42,6 @@ void lock(mutex_t* m) {
 
     } else {
       m->isLocked = 1;
-      m->currentHolderDeadline = cur_TCB->deadline;
       m->holder = cur_TCB;
       locked = 1;
     }
@@ -57,7 +56,6 @@ void unlock(mutex_t* m) {
   if (m->isLocked) {
     /* Should not happen */
     m->isLocked = 0;
-    m->currentHolderDeadline = 0;
 
     m->holder->inherited = NULL;
     m->holder->blocked = 0;

@@ -15,9 +15,6 @@
   asm volatile("out		__SREG__, __tmp_reg__" ::);
 
 typedef struct {
-  /* Deadline of the task currently holding the mutex */
-  int currentHolderDeadline;
-
   int isLocked;
 
   volatile task_t *holder;
