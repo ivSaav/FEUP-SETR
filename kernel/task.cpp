@@ -85,3 +85,13 @@ void Task_StackInit(task_t* t) {
   *t->stackPointer = (StackType_t)0x031; /* R31 */
   t->stackPointer--;
 }
+
+int Task_GetPriority(const task_t* t) {
+  if (t->inherited != NULL) {
+    return t->inherited->initialDelay +
+           t->inherited->period * t->inherited->numRuns +
+           t->inherited->inheritedDeadline;
+  } else {
+    return t->initialDelay + t->period * t->numRuns + t->inheritedDeadline;
+  }
+}

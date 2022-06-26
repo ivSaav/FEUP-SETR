@@ -25,7 +25,6 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
                   int maxStackSize, int isIdleTask) {
   for (int x = 0; x < NT; x++) {
     if (!Tasks[x]->func) {
-      // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
       Tasks[x]->bottomOfStack = &(globalStack[curStackIndex]);
       Tasks[x]->stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
       curStackIndex += maxStackSize;
@@ -76,47 +75,24 @@ static int Task_cmp(const void *p1, const void *p2) {
   if (t1->exec == t2->exec) {
     if (t1->isIdleTask) return 1;
     if (t2->isIdleTask) return -1;
-    // return t1->deadline - t2->deadline;
 
-    int realDeadline1 = t1->initialDelay + t1->period * t1->numRuns + t1->inheritedDeadline;
-    int realDeadline2 = t2->initialDelay + t2->period * t2->numRuns + t2->inheritedDeadline;
-    // if (t1->inheritedDeadline == t2->inheritedDeadline) {
-    //   // if (t1->blocked == t2->blocked) return (t1->id == cur_TCB->id) -
-    //   // (t2->id == cur_TCB->id);
-    //   return t1->blocked - t2->blocked;
-    // }
-    // return t1->inheritedDeadline - t2->inheritedDeadline;
+    int prio1 = Task_GetPriority(t1);
+    int prio2 = Task_GetPriority(t2);
 
-    if (realDeadline1 == realDeadline2) {
-      // if (t1->blocked == t2->blocked) return (t1->id == cur_TCB->id) -
-      // (t2->id == cur_TCB->id);
+    if (prio1 == prio2) {
       return t1->blocked - t2->blocked;
     }
-    return realDeadline1 - realDeadline2;
+    return prio1 - prio2;
   }
 
   return t2->exec - t1->exec;
 }
-
-// static void sortTasks() {
-//   for (int i = 0; i < NT - 1; i++) {
-//     for (int j = 0; j < NT - i - 1; j++) {
-//       if (Task_cmp(&Tasks[j], &Tasks[j + 1]) > 0) {
-//         // if (Tasks[j] > Tasks[j + 1]) {
-//         task_t temp = Tasks[j];
-//         Tasks[j] = Tasks[j + 1];
-//         Tasks[j + 1] = temp;
-//       }
-//     }
-//   }
-// }
 
 /* Called every tick */
 void Sched_Dispatch(void) {
   qsort(Tasks, NT, sizeof(task_t *), Task_cmp);
   cur_task = 0;
   cur_TCB = Tasks[cur_task];
-  cur_TCB->blocked = 0;
 }
 
 void Sched_Start(void) {

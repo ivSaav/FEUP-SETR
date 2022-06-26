@@ -4,7 +4,7 @@
 #include "include/scheduler.h"
 
 mutex_t Mutexes[NM];
-extern task_t *Tasks[NT];
+extern task_t* Tasks[NT];
 
 extern volatile task_t* volatile cur_TCB; /*Change in assembly if name is
                                              changed */
@@ -37,6 +37,7 @@ void lock(mutex_t* m) {
       /* Task requesting lock will be blocked and inherit the priority of the
        * current holder */
       m->holder->inheritedDeadline = cur_TCB->inheritedDeadline;
+      m->holder->inherited = cur_TCB;
       cur_TCB->blocked = 1;
 
     } else {
@@ -57,6 +58,9 @@ void unlock(mutex_t* m) {
     /* Should not happen */
     m->isLocked = 0;
     m->currentHolderDeadline = 0;
+
+    m->holder->inherited = NULL;
+    m->holder->blocked = 0;
 
     m->holder = 0;
     cur_TCB->inheritedDeadline = cur_TCB->deadline;
