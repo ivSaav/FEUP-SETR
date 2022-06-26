@@ -40,6 +40,10 @@ typedef struct {
 
   int blocked;
 
+  int numRuns;
+
+  int initialDelay;
+
 } task_t;
 
 void Task_StackInit(task_t* t);

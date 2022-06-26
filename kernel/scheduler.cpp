@@ -24,9 +24,7 @@ int Sched_Init(void) {
 int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
                   int maxStackSize, int isIdleTask) {
   for (int x = 0; x < NT; x++) {
-
     if (!Tasks[x]->func) {
-
       // Tasks[x].stackPointer = &(Tasks[x].stack[MAX_STACK_SIZE - 1]);
       Tasks[x]->bottomOfStack = &(globalStack[curStackIndex]);
       Tasks[x]->stackPointer = &(globalStack[curStackIndex + maxStackSize - 1]);
@@ -40,6 +38,7 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
       Tasks[x]->func = f;
       Tasks[x]->isIdleTask = isIdleTask;
       Tasks[x]->inheritedDeadline = deadline;
+      Tasks[x]->numRuns = 0;
       Task_StackInit(Tasks[x]);
       return x;
     }
@@ -67,8 +66,8 @@ int Sched_Schedule(void) {
 }
 
 static int Task_cmp(const void *p1, const void *p2) {
-  const task_t *t1 = *((const task_t **) p1);
-  const task_t *t2 = *((const task_t **) p2);
+  const task_t *t1 = *((const task_t **)p1);
+  const task_t *t2 = *((const task_t **)p2);
 
   // Non set tasks always go last
   if (!t1->func) return 1;
@@ -79,10 +78,21 @@ static int Task_cmp(const void *p1, const void *p2) {
     if (t2->isIdleTask) return -1;
     // return t1->deadline - t2->deadline;
 
-    if (t1->inheritedDeadline == t2->inheritedDeadline) {
+    int realDeadline1 = t1->initialDelay + t1->period * t1->numRuns + t1->inheritedDeadline;
+    int realDeadline2 = t2->initialDelay + t2->period * t2->numRuns + t2->inheritedDeadline;
+    // if (t1->inheritedDeadline == t2->inheritedDeadline) {
+    //   // if (t1->blocked == t2->blocked) return (t1->id == cur_TCB->id) -
+    //   // (t2->id == cur_TCB->id);
+    //   return t1->blocked - t2->blocked;
+    // }
+    // return t1->inheritedDeadline - t2->inheritedDeadline;
+
+    if (realDeadline1 == realDeadline2) {
+      // if (t1->blocked == t2->blocked) return (t1->id == cur_TCB->id) -
+      // (t2->id == cur_TCB->id);
       return t1->blocked - t2->blocked;
     }
-    return t1->inheritedDeadline - t2->inheritedDeadline;
+    return realDeadline1 - realDeadline2;
   }
 
   return t2->exec - t1->exec;
@@ -103,7 +113,7 @@ static int Task_cmp(const void *p1, const void *p2) {
 
 /* Called every tick */
 void Sched_Dispatch(void) {
-  qsort(Tasks, NT, sizeof(task_t*), Task_cmp);
+  qsort(Tasks, NT, sizeof(task_t *), Task_cmp);
   cur_task = 0;
   cur_TCB = Tasks[cur_task];
   cur_TCB->blocked = 0;
