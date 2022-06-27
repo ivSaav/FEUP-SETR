@@ -127,6 +127,51 @@ void t4(void) {
   }
 }
 
+
+void t5(void) {
+  while (1) {
+
+    delay(500);
+
+    lock(&Mutexes[0]);
+    digitalWrite(d1, !digitalRead(d1));
+    delay(500);
+    digitalWrite(d1, !digitalRead(d1));
+    unlock(&Mutexes[0]);
+
+    delay(500);
+    // Serial.println(F("Im task 0"));
+    TaskYield();
+  }
+}
+
+void t6(void) {
+  while (1) {
+    digitalWrite(d2, !digitalRead(d2));
+    delay(1000);
+    digitalWrite(d2, !digitalRead(d2));
+
+    // Serial.println(F("Im task 3"));
+    TaskYield();
+  }
+}
+
+void t7(void) {
+  while (1) {
+
+    delay(500);
+    lock(&Mutexes[0]);
+    digitalWrite(d3, !digitalRead(d3));
+    delay(1500);
+    digitalWrite(d3, !digitalRead(d3));
+    unlock(&Mutexes[0]);
+
+    delay(500);
+    // Serial.println(F("Im task 1"));
+    TaskYield();
+  }
+}
+
 void idle(void) {
   while (1) {
     // Serial.println(F("Idle"));
@@ -161,8 +206,8 @@ void setup() {
   // Sched_AddTask(t4, 1 /* delay */, 10 /* period */, 6, 100, 0);
   // Sched_AddTask(shortTask, 1, 2, 1, 100, 0);
   // Serial.println("Before Create");
-  Sched_AddTask(button, 0, 1, 1, 100, 0);
-  Sched_AddTask(longTask, 8, 10, 5, 100, 0);
+  // Sched_AddTask(button, 0, 1, 1, 100, 0);
+  // Sched_AddTask(longTask, 8, 10, 5, 100, 0);
   // // Sched_AddTask(t2, 1 /* delay */, 2 /* period */, 2, 100, 0);
 
 
@@ -170,6 +215,10 @@ void setup() {
   // Sched_AddTask(t2, 0 /* delay */, 3 /* period */, 3 /* deadline */, 100, 0);
   // Sched_AddTask(t3, 0 /* delay */, 4 /* period */, 4 /* deadline */, 100, 0);
   // Sched_AddTask(t4, 0 /* delay */, 6 /* period */, 6 /* deadline */, 100, 0);
+
+  Sched_AddTask(t5, 2 /* delay */, 10/* period */, 10 /* deadline */, 100, 0);
+  Sched_AddTask(t6, 5 /* delay */, 12 /* period */, 12/* deadline */, 100, 0);
+  Sched_AddTask(t7, 0 /* delay */, 20 /* period */, 15/* deadline */, 100, 0);
 
 
   Sched_AddTask(idle, 0 /* delay */, 1 /* period */, 1, 100, 1);

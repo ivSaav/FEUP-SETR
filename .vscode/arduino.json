@@ -1,7 +1,7 @@
 {
     "board": "arduino:avr:uno",
     "programmer": "arduino:avrispmkii",
-    "port": "COM3",
+    "port": "/dev/ttyACM1",
     "sketch": "kernel/kernel.ino",
     "output": "build"
 }
