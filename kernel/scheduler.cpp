@@ -33,7 +33,7 @@ int Sched_AddTask(void (*f)(void), int delay, int p, int deadline,
       Tasks[x]->period = p;
       Tasks[x]->delay = delay;
       Tasks[x]->deadline = deadline;
-      Tasks[x]->exec = 0;
+      Tasks[x]->exec = isIdleTask;
       Tasks[x]->func = f;
       Tasks[x]->isIdleTask = isIdleTask;
       Tasks[x]->inheritedDeadline = deadline;
