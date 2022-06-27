@@ -54,7 +54,6 @@ void unlock(mutex_t* m) {
   ENTER_CRITICAL();
 
   if (m->isLocked) {
-    /* Should not happen */
     m->isLocked = 0;
 
     m->holder->inherited = NULL;
