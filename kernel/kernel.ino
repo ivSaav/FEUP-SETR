@@ -28,7 +28,7 @@ void vPortYieldFromTick(void) {
 
   if (Sched_Schedule()) { /* vTaskIncrementTick in FreeRTOS */
     Sched_Dispatch();     /* vTaskSwitchContext in FreeRTOS */
-  };
+  }
 
   portRESTORE_CONTEXT();
   asm volatile("ret");
