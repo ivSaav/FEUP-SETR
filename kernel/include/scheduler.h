@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include <Arduino.h>
+#include "measures.h"
 
 #define NT 5
 #define GLOBAL_STACK_SIZE 1000

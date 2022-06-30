@@ -89,7 +89,7 @@ static int Task_cmp(const void *p1, const void *p2) {
 }
 
 /* Called every tick */
-void Sched_Dispatch(void) {
+void Sched_Dispatch(void) {  
   qsort(Tasks, NT, sizeof(task_t *), Task_cmp);
   cur_task = 0;
   cur_TCB = Tasks[cur_task];
