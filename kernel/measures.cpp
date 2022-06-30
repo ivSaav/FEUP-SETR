@@ -3,7 +3,7 @@
 
 
 static int timestampIndex = 0;
-static unsigned long timestamps[10];
+static unsigned long timestamps[MEASURES];
 
 
 void addTimestamp() {

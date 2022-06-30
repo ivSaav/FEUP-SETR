@@ -35,6 +35,15 @@ data = [(f"{i+1} tasks", average_data['dispatch'][i], average_data['schedule'][i
 
 df = pd.DataFrame(data, columns=['# Tasks', 'Dispatch (average) (micros)', 'Schedule (average) (micros)'])
 
-df.to_excel('measures.xlsx', index=False)
+# uncomment to save to excel
+# df.to_excel('measures.xlsx', index=False)
 
 print(df)
+
+locks = []
+with open('measures/locks.txt', 'r') as f:
+        for line in f:
+            locks.append(float(line))
+locks = [locks[i+1] - locks[i] for i in range(0, len(locks), 2)]
+
+print("Aquire mutex (micros):", average(locks))

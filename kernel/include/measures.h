@@ -1,7 +1,7 @@
 #ifndef MEASURES_H
 #define MEASURES_H
 
-#define MEASURES 10
+#define MEASURES 30
 
 void addTimestamp();
 unsigned long int* getTimestampArray();
