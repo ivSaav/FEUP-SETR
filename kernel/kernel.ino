@@ -176,11 +176,30 @@ void idle(void) {
   }
 }
 
+void testTask(void) {
+  while (1) {
+    digitalWrite(d4, !digitalRead(d4));
+    TaskYield();
+  }
+}
+
+void printMeasuresTask(void) {
+  while (1)
+  {
+    if (isDoneMeasureing()) {
+      printTimestamps();
+    }
+
+    TaskYield();
+  }
+  
+}
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   // Serial.begin(115200);
   // while (!Serial) {
-  //   ;
+  //  ;
   // }
 
   // Serial.println((uint16_t)&setup);
